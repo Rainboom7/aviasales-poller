@@ -9,7 +9,7 @@ from dto.destinations import Destination
 from service.tg_bot_service import TgBotService
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-USER_TO_FETCH = os.getenv("USER_ID")
+USER_TO_FETCH = os.getenv("USER_TO_FETCH")
 bot = telebot.TeleBot(BOT_TOKEN)
 
 service = TgBotService(desired_cities=[
@@ -32,15 +32,18 @@ service = TgBotService(desired_cities=[
 
 
 def send_info():
-    response = asyncio.run(service.fetch_desired_cities())
-    bot.send_message(chat_id=USER_TO_FETCH, text=response)
+    try:
+        response = asyncio.run(service.fetch_desired_cities())
+        bot.send_message(chat_id=USER_TO_FETCH, text=response)
+    except Exception as e:
+        print("Unexpected error", e)
 
 
 @bot.message_handler(commands=['start'])
 def send_hello(message):
     bot.reply_to(message, "Henlo")
 
-
+send_info()
 schedule.every(2).hours.do(send_info)
 
 while True:
