@@ -4,7 +4,7 @@ import string
 import psycopg
 from psycopg.abc import Params
 
-from db.queries import SQL_CREATE_TABLES, SQL_CALCULATE_MIN_PRICE, SQL_INSERT_NEW_PRICE
+from db.queries import SQL_CREATE_TABLES, SQL_CALCULATE_MIN_PRICE, SQL_INSERT_NEW_PRICE, SQL_CALCULATE_TOTAL_MIN_PRICE
 from dto.avia_response_item import AviaResponseItem
 
 
@@ -35,6 +35,13 @@ class PgService(object):
 
     def calculate_min_by_key(self, fly_key: string):
         query_result = self._execute_query_with_params(SQL_CALCULATE_MIN_PRICE, {'fly_key': "\"" + fly_key + "\""})
+        if query_result is None:
+            return 922337203
+        return query_result[0][0]
+
+    def calculate_total_min(self, keys: list[string]):
+        param_array = ["\"" + key + "\"" for key in keys]
+        query_result = self._execute_query_with_params(SQL_CALCULATE_TOTAL_MIN_PRICE, {'parameter_array': param_array})
         if query_result is None:
             return 922337203
         return query_result[0][0]
